@@ -1,4 +1,5 @@
 import "../scss/styles.scss";
+import { API_URL } from "./config.js";
 import $ from "jquery";
 import Inputmask from "inputmask";
 import validator from "jquery-validation";
@@ -6,6 +7,10 @@ import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
 import Chart from "chart.js/auto";
 
+/**
+ * valida email rut.
+ * @param campo string
+ */
 const validaRut = (campo) => {
 	if (campo.length == 0) {
 		return false;
@@ -53,10 +58,17 @@ const validaRut = (campo) => {
 	}
 };
 
+/**
+ * valida un email.
+ * @param campo string
+ */
 const validaEmail = (campo) => {
 	return campo.indexOf("@", 0) == -1 || $("#email").val().indexOf(".", 0) == -1;
 };
 
+/**
+ * Agrega la funcion validaRut como método al validador
+ */
 $.validator.addMethod(
 	"rut",
 	function (value, element) {
@@ -65,6 +77,9 @@ $.validator.addMethod(
 	"Debes ingresar un rut válido"
 );
 
+/**
+ * Agrega funcion para validar alfanumérico como método al validador
+ */
 $.validator.addMethod(
 	"alphanumeric",
 	function (value, element) {
@@ -74,6 +89,9 @@ $.validator.addMethod(
 	"El campo debe tener un valor alfanumérico (azAZ09)"
 );
 
+/**
+ * Agrega la funcion validaEmail como método al validador
+ */
 $.validator.addMethod(
 	"validEmail",
 	function (value, element) {
@@ -82,6 +100,9 @@ $.validator.addMethod(
 	"Debes ingresar un email válido"
 );
 
+/**
+ * crea la mascara para el rut
+ */
 const rutMask = new Inputmask({
 	mask: "(9(.999){2}-K)|(99(.999){2}-K)",
 	autoUnmask: true,
@@ -95,16 +116,22 @@ const rutMask = new Inputmask({
 		},
 	},
 });
-
+/**
+ *  le asigna la mascara al input
+ */
 rutMask.mask(document.getElementById("rut"));
 
-const urlBase = "http://votaciones_back.test";
 
 $(document).ready(() => {
+	/**
+	 *  genera una consulta post al servidor
+	 * @param endpoint string
+	 * @param data object
+	 */
 	const postApi = async (endpoint, data) => {
 		await $.ajax({
 			type: "post",
-			url: `${urlBase}/${endpoint}`,
+			url: `${API_URL}/${endpoint}`,
 			data,
 			dataType: "json",
 		})
@@ -115,10 +142,14 @@ $(document).ready(() => {
 				console.error(JSON.parse(err.responseText));
 			});
 	};
+	/**
+	 *  genera una consulta get al servidor
+	 * @param endpoint string
+	 */
 	const getApi = async (endpoint) => {
 		return await $.ajax({
 			type: "get",
-			url: `${urlBase}/${endpoint}`,
+			url: `${API_URL}/${endpoint}`,
 			dataType: "json",
 		})
 			.done((resp) => {
@@ -129,6 +160,9 @@ $(document).ready(() => {
 			});
 	};
 
+	/**
+	 *  carga las regiones al select
+	 */
 	const cargaRegiones = async () => {
 		const regiones = await getApi("region");
 		$("#region_id").html('<option value="">Seleccione</option>');
@@ -137,6 +171,10 @@ $(document).ready(() => {
 		});
 	};
 
+	/**
+	 *  carga las comunas de una region al select
+	 * @param regionId integer
+	 */
 	const cargaComunas = async (regionId) => {
 		$("#comuna_id").html(`<option value="">Cargando...</option>`);
 		const comunas = await getApi(`comuna/region/${regionId}`);
@@ -146,6 +184,9 @@ $(document).ready(() => {
 		});
 	};
 
+	/**
+	 *  carga los candidatos al select
+	 */
 	const cargaCandidatos = async () => {
 		const candidatos = await getApi("candidato");
 		$("#candidato").html("");
@@ -154,6 +195,9 @@ $(document).ready(() => {
 		});
 	};
 
+	/**
+	 *  carga los cómo nos conociste
+	 */
 	const cargaComoConociste = async () => {
 		const como = await getApi("como-conociste");
 		$("#como-conociste-options").html("");
@@ -166,11 +210,17 @@ $(document).ready(() => {
 		});
 	};
 
+	/**
+	 *  resetea el formulario
+	 */
 	const reset = () => {
 		$("#votacion-form").trigger("reset");
 		$("#comuna_id").html(`<option value="">Seleccione</option>`);
 	};
 
+	/**
+	 *  llama todas las cargas
+	 */
 	const carga = async () => {
 		await (cargaRegiones(), cargaCandidatos(), cargaComoConociste());
 		$("#cargando").fadeOut();
@@ -179,10 +229,16 @@ $(document).ready(() => {
 	carga();
 	reset();
 
+	/**
+	 *  carga las comunas onChange
+	 */
 	$("#region_id").on("change", function (e) {
 		cargaComunas($(this).val());
 	});
 
+	/**
+	 *  valida que no halla votado antes onChange
+	 */
 	$("#rut").on("change", function (e) {
 		getApi(`votacion/existe/${$(this).val()}`).catch((err) => {
 			const error = JSON.parse(err.responseText);
@@ -194,11 +250,17 @@ $(document).ready(() => {
 		});
 	});
 
+	/**
+	 *  deshabilita submit
+	 */
 	$("#votacion-form").on("submit", function (e) {
 		e.preventDefault();
 		return false;
 	});
 
+	/**
+	 *  muestra modal con resultados
+	 */
 	$("#get-resultados").on("click", async function () {
 		$("#cargando").fadeIn();
 		const resultados = await getApi("votacion/resultados");
@@ -221,12 +283,9 @@ $(document).ready(() => {
 		});
 	});
 
-	/*
-	const modalResultados = document.getElementById("modal-resultados");
-
-	modalResultados.addEventListener("show.bs.modal", async (event)=> {
-	}); */
-
+	/**
+	 *  reglas y submit del formulario
+	 */
 	$("#votacion-form").validate({
 		rules: {
 			rut: {
