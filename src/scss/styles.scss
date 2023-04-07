@@ -1,0 +1,70 @@
+@import "colors";
+@import "~bootstrap/scss/bootstrap";
+@import "variables";
+@import "fonts";
+
+@import "responsive";
+
+* {
+	font-family: $poppins;
+}
+
+.main{
+	padding: 30px 0;
+}
+
+h1 {
+	color: $secondary;
+	margin-bottom: 30px;
+}
+
+#cargando {
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	z-index: 100;
+	background: rgba(0, 0, 0, .8);
+	top: 0;
+	left: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+
+label {
+	&.error {
+		position: relative;
+		color: #dc3545;
+		padding: 0;
+		transform: unset !important;
+		opacity: 1;
+		font-size: 13px;
+	}
+}
+
+.btn {
+	border-radius: 0;
+}
+
+.form-control,
+ .form-select {
+	border-radius: 0;
+	border-top: 0;
+	border-left: 0;
+	border-right: 0;
+	transition: .5s border-color;
+
+	&:focus {
+		box-shadow: none;
+	}
+}
+
+.form-check-input[type="checkbox"]{
+	border-radius: 0;
+	cursor: pointer;
+}
+
+.form-check-label{
+	cursor: pointer;
+}

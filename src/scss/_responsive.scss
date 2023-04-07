@@ -1,0 +1,41 @@
+$phone: 576px;
+$tablet: 768px;
+$notebook: 992px;
+$desk: 1199px;
+$tv: 1399px;
+
+@mixin customSize($minSize, $maxSize) {
+	@media screen and (min-width: $minSize) and (max-width: $maxSize) {
+		@content;
+	}
+}
+
+@mixin phone {
+	@media screen and (min-width: $phone) and (max-width: $tablet) {
+		@content;
+	}
+}
+
+@mixin tablet {
+	@media screen and (min-width: $tablet) {
+		@content;
+	}
+}
+
+@mixin note {
+	@media screen and (min-width: $notebook) {
+		@content;
+	}
+}
+
+@mixin desk {
+	@media screen and (min-width: $desk) {
+		@content;
+	}
+}
+
+@mixin tv {
+	@media screen and (min-width: $tv) {
+		@content;
+	}
+}
